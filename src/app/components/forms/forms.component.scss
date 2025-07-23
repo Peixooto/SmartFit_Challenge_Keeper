@@ -93,14 +93,17 @@
     margin: 32px 0;
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px;
     font-weight: 600;
 }
 
 .form-group .checkbox-wrapper label{
     margin-left: 6px;
+}
+.form-group .checkbox-wrapper input[type="checkbox"]{
+    margin-right: 4px;
 }
 
 a {
