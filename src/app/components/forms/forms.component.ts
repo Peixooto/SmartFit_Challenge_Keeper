@@ -61,7 +61,9 @@ export class FormsComponent implements OnInit{
     }
   }
 
-  filterUnits(unit:Location,opened:boolean,open_hour:string,close_hour:string){
+  filterUnits(unit:Location,open_hour:string,close_hour:string){
+    if(!unit.schedules) return true;
+
     let open_hour_filter = parseInt(open_hour,10)
     let close_hour_filter = parseInt(close_hour,10)
 
@@ -70,19 +72,35 @@ export class FormsComponent implements OnInit{
     for(let i = 0; i< unit.schedules.length; i++){
       let schedules_hour = unit.schedules[i].hour
       let schedules_weekday = unit.schedules[i].weekdays
-    }    
+      if(todays_weekday === schedules_weekday){
+        if(schedules_hour !== 'Fechada'){
+          let [unit_open_hour,unit_close_hour] = schedules_hour.split(' ás ')
+          let unit_open_hour_int = parseInt(unit_open_hour.replace('h',''),10)
+          let unit_close_hour_int = parseInt(unit_close_hour.replace('h',''),10)
+
+          if(unit_open_hour_int <= open_hour_filter && unit_close_hour_int >= close_hour_filter) return true
+          }
+        }
+      }
+    return false;
   }
 
   onSubmit():void {
+  let intermediateResults=this.results;
+    
+   if (!this.formGroup.value.showClosed){
+    intermediateResults = this.results.filter(location => location.opened === true);
+  }
+  
+  if(this.formGroup.value.hour){
     const OPEN_HOUR = OPENING_HOURS[this.formGroup.value.hour as HOUR_INDEXES].first
     const CLOSE_HOUR = OPENING_HOURS[this.formGroup.value.hour as HOUR_INDEXES].last
-
-   if (!this.formGroup.value.showClosed){
-    this.filteredResults = this.results.filter(location => location.opened === true)
-   } else {
-    this.filteredResults = this.results
-   }
+    this.filteredResults = intermediateResults.filter(location => this.filterUnits(location,OPEN_HOUR,CLOSE_HOUR));
+  } else{
+    this.filteredResults = intermediateResults;
   }
+  console.log(this.filteredResults)
+}
 
   onClean():void {
     this.formGroup.reset();
